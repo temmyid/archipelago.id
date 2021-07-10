@@ -1,71 +1,31 @@
 <?php
-   
 
-    session_cache_limiter( 'nocache' );
-    header( 'Expires: ' . gmdate( 'r', 0 ) );
-    header( 'Content-type: application/json' );
+// Define some constants
+define( "RECIPIENT_NAME", "John Doe" );
+define( "RECIPIENT_EMAIL", "youremail@mail.com" );
 
+// Read the form values
+$success = false;
+$userName = isset( $_POST['username'] ) ? preg_replace( "/[^\s\S\.\-\_\@a-zA-Z0-9]/", "", $_POST['username'] ) : "";
+$senderEmail = isset( $_POST['email'] ) ? preg_replace( "/[^\.\-\_\@a-zA-Z0-9]/", "", $_POST['email'] ) : "";
+$userPhone = isset( $_POST['phone'] ) ? preg_replace( "/[^\s\S\.\-\_\@a-zA-Z0-9]/", "", $_POST['phone'] ) : "";
+$userSubject = isset( $_POST['subject'] ) ? preg_replace( "/[^\s\S\.\-\_\@a-zA-Z0-9]/", "", $_POST['subject'] ) : "";
+$message = isset( $_POST['message'] ) ? preg_replace( "/(From:|To:|BCC:|CC:|Subject:|Content-Type:)/", "", $_POST['message'] ) : "";
 
-    $to         = 'trendytheme.net@gmail.com';
+// If all values exist, send the email
+if ( $userName && $senderEmail && $userPhone && $userSubject && $message) {
+  $recipient = RECIPIENT_NAME . " <" . RECIPIENT_EMAIL . ">";
+  $headers = "From: " . $userName . "";
+  $msgBody = " Email: ". $senderEmail .  " Phone: ". $userPhone . " Subject: ". $userSubject . " Message: " . $message . "";
+  $success = mail( $recipient, $headers, $msgBody );
 
-    $email_template = 'simple.html';
+  //Set Location After Successsfull Submission
+  header('Location: contact.html?message=Successfull');
+}
 
-    $subject    = strip_tags($_POST['subject']);
-    $email       = strip_tags($_POST['email']);
-    $phone      = strip_tags($_POST['phone']);
-    $name       = strip_tags($_POST['name']);
-    $message    = nl2br( htmlspecialchars($_POST['message'], ENT_QUOTES) );
-    $result     = array();
+else{
+	//Set Location After Unsuccesssfull Submission
+  	header('Location: contact.html?message=Failed');	
+}
 
-
-    if(empty($name)){
-
-        $result = array( 'response' => 'error', 'empty'=>'name', 'message'=>'<strong>Error!</strong>&nbsp; Name is empty.' );
-        echo json_encode($result );
-        die;
-    } 
-
-    if(empty($email)){
-
-        $result = array( 'response' => 'error', 'empty'=>'email', 'message'=>'<strong>Error!</strong>&nbsp; Email is empty.' );
-        echo json_encode($result );
-        die;
-    } 
-
-    if(empty($message)){
-
-         $result = array( 'response' => 'error', 'empty'=>'message', 'message'=>'<strong>Error!</strong>&nbsp; Message body is empty.' );
-         echo json_encode($result );
-         die;
-    }
-    
-
-
-    $headers  = "From: " . $name . ' <' . $email . '>' . "\r\n";
-    $headers .= "Reply-To: ". $email . "\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-
-
-    $templateTags =  array(
-        '{{subject}}' => $subject,
-        '{{email}}'=>$email,
-        '{{message}}'=>$message,
-        '{{name}}'=>$name,
-        '{{phone}}'=>$phone
-        );
-
-
-    $templateContents = file_get_contents( dirname(__FILE__) . '/email-templates/'.$email_template);
-
-    $contents =  strtr($templateContents, $templateTags);
-
-    if ( mail( $to, $subject, $contents, $headers ) ) {
-        $result = array( 'response' => 'success', 'message'=>'<strong>Thank You!</strong>&nbsp; Your email has been delivered.' );
-    } else {
-        $result = array( 'response' => 'error', 'message'=>'<strong>Error!</strong>&nbsp; Cann\'t Send Mail.'  );
-    }
-
-    echo json_encode( $result );
-
-    die;
+?>
