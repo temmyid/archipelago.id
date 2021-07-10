@@ -601,7 +601,7 @@ img{
 
 img{
 	display:inline-block;
-	max-width:100%;
+	max-width:30%;
 	height:auto;	
 }
 
@@ -1705,7 +1705,7 @@ img{
 
 .hidden-bar .logo img{
 	display:inline-block;
-	max-width:100%;
+	max-width:70%;
 }
 
 .hidden-bar .side-menu {
